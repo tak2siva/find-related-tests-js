@@ -21,6 +21,7 @@
   },
   "dependencies": {
     "@types/dependency-tree": "^7.2.0",
-    "@types/node": "^13.13.5"
+    "@types/node": "^13.13.5",
+    "dependency-tree": "^7.2.1"
   }
 }
