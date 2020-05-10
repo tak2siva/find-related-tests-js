@@ -31,7 +31,7 @@ module.exports = {
             return
         }
 
-        if (sourceFile.indexOf('.js') >= 1) {
+        if (sourceFile.slice(-3) === '.js') {
             // Map multiple test files for single source file
             accumulator.add(sourceFile.replace(/\.js/, '.test.js'));
             accumulator.add(sourceFile.replace(/\.js/, '.snapshot.js'));
