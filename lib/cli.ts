@@ -2,7 +2,7 @@
 
 import yargs from 'yargs';
 import fs from 'fs';
-import log from 'loglevel';
+import log, {LogLevelDesc} from 'loglevel';
 
 import { FindRelatedFiles } from "./index";
 import {strict} from "assert";
@@ -62,6 +62,7 @@ export async function Run(config: any) {
 function getConfig() {
     const argv = yargs.options({
         configPath: {type: "string", demandOption: true},
+        logLevel: {type: "string", default: "info"}
     }).argv;
 
     log.debug("Config file path: ", argv.configPath);
@@ -76,6 +77,7 @@ function getConfig() {
         throw new Error('Unable to load config file');
     }
 
+    log.setDefaultLevel(argv.logLevel as LogLevelDesc);
     return config;
 }
 
