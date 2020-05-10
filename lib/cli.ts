@@ -3,9 +3,9 @@
 import yargs from 'yargs';
 import fs from 'fs';
 import log, {LogLevelDesc} from 'loglevel';
+import {Configuration, InputMode} from "./model";
 
-import { FindRelatedFiles } from "./index";
-import {strict} from "assert";
+import {FindRelatedFiles, Executor} from "./index";
 
 export function getChangedFilesFromStream(config: any) {
     return new Promise<Set<string>>((resolve, reject) => {
@@ -19,7 +19,7 @@ export function getChangedFilesFromStream(config: any) {
         });
 
         stdin.on('end', function () {
-            console.log(data);
+            log.debug("\nGit diff --name-only: ", data);
             for (let temp of data.toString().split("\n")) {
                 if (config.gitIncludeFilter(temp)) {
                     changeSet.add(config.gitRoot + '/' + temp);
@@ -32,9 +32,7 @@ export function getChangedFilesFromStream(config: any) {
     });
 }
 
-console.log('Searching for related test files..');
-
-export async function Run(config: any) {
+export async function RunCmdLine(config: Configuration) {
     log.info("Project directory: ", process.cwd());
     if (process.stdin.isTTY) {
         log.info('No stdin');
@@ -47,39 +45,60 @@ export async function Run(config: any) {
 
             log.info("Entry point: ", config.entryPoint);
             log.info("Search Dir: ", config.searchDir);
-            const res: any = FindRelatedFiles(config.entryPoint, config.searchDir, changeSet, config);
+            config.changedFileSet = changeSet;
+            const res: any = FindRelatedFiles(config);
             log.info("Test Candidates..");
             log.info(res);
             log.info("\n\n");
-            if(config?.outputWrite) {
-                log.info("Executing outputWrite callback..");
-                config.outputWrite(fs, res);
+            if(config.outputFile) {
+                log.info("Writing test candidates to ", config.outputFile);
+                fs.writeFile(config.outputFile, Array.from(res).join(' '), err => {
+                    if(err) {
+                        console.log('output write error: ', err)
+                    }
+                });
             }
         });
     }
 }
 
-function getConfig() {
+
+function getConfig() : Configuration {
     const argv = yargs.options({
         configPath: {type: "string", demandOption: true},
-        logLevel: {type: "string", default: "info"}
+        logLevel: {type: "string", default: "info"},
+        entryPoint: {type: "string"},
+        searchDir: {type: "string"},
+        gitRoot: {type: "string"},
+        outputFile: {type: "string"}
     }).argv;
-
+    log.setDefaultLevel(argv.logLevel as LogLevelDesc);
     log.debug("Config file path: ", argv.configPath);
+    log.debug("Config args: ", argv);
 
     let config: any;
     if (fs.existsSync(argv.configPath)) {
         log.debug('Config file exists');
         config = require(argv.configPath);
+        config = {...config, ...argv};
         log.debug("Config Object: ", config);
     } else {
         log.error('Config file does not exists or wrong path: ', argv.configPath);
         throw new Error('Unable to load config file');
     }
 
-    log.setDefaultLevel(argv.logLevel as LogLevelDesc);
-    return config;
+    return new Configuration(config);
 }
 
+function Run(config: Configuration) {
+    if(config.inputMode == InputMode.config) {
+        Executor(config);
+        return;
+    } else {
+        RunCmdLine(config);
+    }
+}
+
+console.log('Searching for related test files..');
 log.setDefaultLevel('info');
 Run(getConfig());

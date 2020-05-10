@@ -1,5 +1,7 @@
 import dependencyTree, { DependencyObj }  from 'dependency-tree';
 import log from 'loglevel';
+import { Configuration, Accumulator } from "./model";
+import fs from "fs";
 
 export class Explorer {
     root: DependencyObj;
@@ -42,42 +44,44 @@ export class Explorer {
     }
 }
 
-class Accumulator {
-    testCandidates: Set<string>;
-
-    constructor() {
-        this.testCandidates = new Set<string>();
-    }
-
-    add(file: string) {
-        this.testCandidates.add(file);
-    }
-}
-
-export function FindRelatedFiles(entryPoint: string, searchDir: string,  changedFileSet: Set<string>, config: any) : Set<string> {
+export function FindRelatedFiles(config: Configuration) : Set<string> {
     let tree: DependencyObj = dependencyTree({
-        filename: entryPoint,
-        directory: searchDir,
+        filename: config.entryPoint,
+        directory: config.searchDir,
         filter: config.dependencyExcludeFilter
     });
     log.debug("Tree..", tree);
     let explorer: Explorer = new Explorer(tree);
-    let sourceCandidates = explorer.findConsumersOf(changedFileSet);
+    if (!config.changedFileSet) {
+        throw Error("Modified candidates are missing..");
+    }
+    let sourceCandidates = explorer.findConsumersOf(config.changedFileSet);
     log.info("\nSource Candidates..");
     log.info(sourceCandidates);
     log.info("\n");
 
     let acc: Accumulator = new Accumulator();
     sourceCandidates.forEach((sourceFile) => {
-       config.sourceToTestMapper(sourceFile, acc);
+        if (config.sourceToTestMapper) {
+            config.sourceToTestMapper(sourceFile, acc);
+        }
     });
 
     return acc.testCandidates;
 }
 
-//
-// dependencyTree({
-//     filename: './App.js',
-//     directory: './src',
-//     filter: path => path.indexOf('node_modules') === -1
-// })
+export function FlushTestCandidates(config: Configuration, testCandidates: Set<string>) {
+    if(config.outputFile) {
+        log.info("Writing test candidates to ", config.outputFile);
+        fs.writeFile(config.outputFile, Array.from(testCandidates).join(' '), err => {
+            if(err) {
+                console.log('output write error: ', err)
+            }
+        });
+    }
+}
+
+export function Executor(config: Configuration) {
+    let testCandidates = FindRelatedFiles(config);
+    FlushTestCandidates(config, testCandidates);
+}

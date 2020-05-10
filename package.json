@@ -1,6 +1,6 @@
 {
   "name": "find-related-tests-js",
-  "version": "1.0.6",
+  "version": "1.0.20",
   "description": "Find related tests only for changed files in branch. Flexible alternate for jest findRelatedTests",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
