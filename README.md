@@ -1,4 +1,4 @@
-## find-related-tests-js
+## find-related-tests-js [![npm version](https://badge.fury.io/js/find-related-tests-js.svg)](https://badge.fury.io/js/find-related-tests-js)
 
 Sometimes we need not run all unit tests in our project. This library will try to find the related files(i.e import files) of all files changed in current branch.
 
