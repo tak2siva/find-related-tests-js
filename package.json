@@ -4,8 +4,16 @@
   "description": "Find related tests only for changed files in branch. Flexible alternate for jest findRelatedTests",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "bin": {
+    "find-related-tests-js": "./lib/cli.ts"
+  },
   "author": "Sivakumar R",
   "license": "MIT",
+  "homepage": "https://github.com/tak2siva/find-related-tests-js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/tak2siva/find-related-tests-js"
+  },
   "scripts": {
     "build": "tsc",
     "test": "mocha -r ts-node/register test/*.spec.ts"
@@ -13,6 +21,7 @@
   "devDependencies": {
     "@types/chai": "^4.2.11",
     "@types/mocha": "^7.0.2",
+    "@types/yargs": "^15.0.4",
     "chai": "^4.2.0",
     "mocha": "^7.1.2",
     "nyc": "^15.0.1",
@@ -22,6 +31,7 @@
   "dependencies": {
     "@types/dependency-tree": "^7.2.0",
     "@types/node": "^13.13.5",
-    "dependency-tree": "^7.2.1"
+    "dependency-tree": "^7.2.1",
+    "yargs": "^15.3.1"
   }
 }

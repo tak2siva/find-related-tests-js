@@ -50,3 +50,10 @@ export function FindRelatedFiles(entryPoint: string, searchDir: string,  changed
     let explorer: Explorer = new Explorer(tree);
     return explorer.findConsumersOf(changedFileSet);
 }
+
+//
+// dependencyTree({
+//     filename: './App.js',
+//     directory: './src',
+//     filter: path => path.indexOf('node_modules') === -1
+// })
