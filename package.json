@@ -1,11 +1,11 @@
 {
   "name": "find-related-tests-js",
-  "version": "1.0.0",
+  "version": "1.0.5",
   "description": "Find related tests only for changed files in branch. Flexible alternate for jest findRelatedTests",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "bin": {
-    "find-related-tests-js": "./lib/cli.ts"
+    "find-related-tests-js": "dist/cli.js"
   },
   "author": "Sivakumar R",
   "license": "MIT",
@@ -16,7 +16,8 @@
   },
   "scripts": {
     "build": "tsc",
-    "test": "mocha -r ts-node/register test/*.spec.ts"
+    "test": "mocha -r ts-node/register test/*.spec.ts",
+    "prepublish": "tsc"
   },
   "devDependencies": {
     "@types/chai": "^4.2.11",

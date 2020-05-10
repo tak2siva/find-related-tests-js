@@ -19,6 +19,15 @@ module.exports = {
             accumulator.add(sourceFile.replace(/\.js/, '.snapshot.js'));
         }
     },
+    outputWrite: function(fs, testCandidateSet) {
+        // Write test candidates list to file if required
+        // Or console.log in certain format to pipe
+        fs.writeFile('/Users/sivakumar/Repos/node/sample/related_test.txt', Array.from(testCandidateSet).join(' '), err => {
+            if(err) {
+                console.log('output write error: ', err)
+            }
+        });
+    },
     changeSet: [
         '/path/file1.js' // required if inputMode is 'config'
     ]

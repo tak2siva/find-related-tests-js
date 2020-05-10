@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 import yargs from 'yargs';
 import fs from 'fs';
 import log from 'loglevel';
@@ -39,16 +41,20 @@ export async function Run(config: any) {
     } else {
         log.info("Reading input stream..");
         await getChangedFilesFromStream(config).then((changeSet) => {
-            log.info("\n\nModified Candidates..");
+            log.info("\nModified Candidates..");
             log.info(changeSet);
             log.info("\n\n");
 
-            log.info("Entry point file: ", config.entryPoint);
+            log.info("Entry point: ", config.entryPoint);
             log.info("Search Dir: ", config.searchDir);
             const res: any = FindRelatedFiles(config.entryPoint, config.searchDir, changeSet, config);
-            log.info("\nTest Candidates..");
+            log.info("Test Candidates..");
             log.info(res);
             log.info("\n\n");
+            if(config?.outputWrite) {
+                log.info("Executing outputWrite callback..");
+                config.outputWrite(fs, res);
+            }
         });
     }
 }
@@ -67,6 +73,7 @@ function getConfig() {
         log.debug("Config Object: ", config);
     } else {
         log.error('Config file does not exists or wrong path: ', argv.configPath);
+        throw new Error('Unable to load config file');
     }
 
     return config;
