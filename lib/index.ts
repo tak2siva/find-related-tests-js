@@ -1,4 +1,5 @@
 import dependencyTree, { DependencyObj }  from 'dependency-tree';
+import log from 'loglevel';
 
 export class Explorer {
     root: DependencyObj;
@@ -41,14 +42,37 @@ export class Explorer {
     }
 }
 
-export function FindRelatedFiles(entryPoint: string, searchDir: string,  changedFileSet: Set<string>) : Set<string> {
+class Accumulator {
+    testCandidates: Set<string>;
+
+    constructor() {
+        this.testCandidates = new Set<string>();
+    }
+
+    add(file: string) {
+        this.testCandidates.add(file);
+    }
+}
+
+export function FindRelatedFiles(entryPoint: string, searchDir: string,  changedFileSet: Set<string>, config: any) : Set<string> {
     let tree: DependencyObj = dependencyTree({
         filename: entryPoint,
         directory: searchDir,
-        filter: path => path.indexOf('node_modules') === -1
+        filter: config.dependencyExcludeFilter
     });
+    log.debug("Tree..", tree);
     let explorer: Explorer = new Explorer(tree);
-    return explorer.findConsumersOf(changedFileSet);
+    let sourceCandidates = explorer.findConsumersOf(changedFileSet);
+    log.info("\nSource Candidates..");
+    log.info(sourceCandidates);
+    log.info("\n");
+
+    let acc: Accumulator = new Accumulator();
+    sourceCandidates.forEach((sourceFile) => {
+       config.sourceToTestMapper(sourceFile, acc);
+    });
+
+    return acc.testCandidates;
 }
 
 //

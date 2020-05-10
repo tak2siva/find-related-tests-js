@@ -207,6 +207,13 @@
   resolved "https://registry.yarnpkg.com/@types/dependency-tree/-/dependency-tree-7.2.0.tgz#1cfeb461bd88e5963ddb2c0891e49f758461b5d7"
   integrity sha512-WkocLp5OuBOJfepkzJ3ap0PSWWCYNw1+z73OYxWFrW0SI2eSwK8xnb0IolWyCFSaF6Gn5HnsAOfC4otqse8Yjg==
 
+"@types/loglevel@^1.6.3":
+  version "1.6.3"
+  resolved "https://registry.yarnpkg.com/@types/loglevel/-/loglevel-1.6.3.tgz#b9852b8fdfd773e18728caf3299e3aba6e5bcae6"
+  integrity sha512-v2YWQQgqtNXAzybOT9qV3CIJqSeoaMUwmBfIMTQdvhsWUybYic/zNGccKH494naWKJ7zUm+VTgFepJfTrbCCJQ==
+  dependencies:
+    loglevel "*"
+
 "@types/mocha@^7.0.2":
   version "7.0.2"
   resolved "https://registry.yarnpkg.com/@types/mocha/-/mocha-7.0.2.tgz#b17f16cf933597e10d6d78eae3251e692ce8b0ce"
@@ -1242,6 +1249,11 @@ log-symbols@3.0.0:
   integrity sha512-dSkNGuI7iG3mfvDzUuYZyvk5dD9ocYCYzNU6CYDE6+Xqd+gwme6Z00NS3dUh8mq/73HaEtT7m6W+yUPtU6BZnQ==
   dependencies:
     chalk "^2.4.2"
+
+loglevel@*, loglevel@^1.6.8:
+  version "1.6.8"
+  resolved "https://registry.yarnpkg.com/loglevel/-/loglevel-1.6.8.tgz#8a25fb75d092230ecd4457270d80b54e28011171"
+  integrity sha512-bsU7+gc9AJ2SqpzxwU3+1fedl8zAntbtC5XYlt3s2j1hJcn2PsXSmgN8TaLG/J1/2mod4+cE/3vNL70/c1RNCA==
 
 make-dir@^2.1.0:
   version "2.1.0"
