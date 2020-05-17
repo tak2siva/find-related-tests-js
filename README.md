@@ -56,6 +56,10 @@ To findRelatedTests for files committed but not pushed
 git diff --name-only origin..head | find-related-tests-js --configPath $PWD/config.js --entryPoint $PWD/App.js --searchDir $PWD/src --gitRoot $PWD --outputFile temp.txt
 ```
 
+```
+git diff --name-only | xargs printf -- "$PWD/%s\n"
+```
+
 If you have not installed this package globally then use ``./node_modules/find-related-tests-js/dist/cli.js`` as executable.
 
 

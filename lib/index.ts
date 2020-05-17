@@ -1,7 +1,10 @@
-import dependencyTree, { DependencyObj }  from 'dependency-tree';
+import dependencyTree, {DependencyObj} from 'dependency-tree';
 import log from 'loglevel';
-import { Configuration, Accumulator } from "./model";
+import {Accumulator} from "./model";
 import fs from "fs";
+import {Configuration} from "./config";
+import {PostOrder} from "./explorer";
+import {Tree} from "./tree";
 
 export class Explorer {
     root: DependencyObj;
@@ -42,6 +45,37 @@ export class Explorer {
 
         return relatedFileSet;
     }
+}
+
+export function FindRelatedFiles2(config: Configuration) : Set<string> {
+    let treeMap: DependencyObj = dependencyTree({
+        filename: config.entryPoint,
+        directory: config.searchDir,
+        filter: config.dependencyExcludeFilter
+    });
+    let tree = Tree.CreateTreeFromObject(treeMap);
+    log.debug("Tree created.");
+    let postOrderCallbacks = {
+        directDependencyModifiedCb: (path: string, relatedFiles: Accumulator) => {
+            relatedFiles.add(path);
+            return true;
+        }
+    }
+    let testFilesAcc = new Accumulator();
+    if(tree) {
+        if(config.changedFileSet) {
+            log.debug("Traversing tree..");
+            PostOrder(tree as Tree, postOrderCallbacks, config.changedFileSet, testFilesAcc);
+            log.debug("Treverse completed..");
+            FlushTestCandidates(config, testFilesAcc.testCandidates);
+        } else {
+            log.info("ChangeNo files modified..")
+        }
+    } else {
+        log.error("Unable to create tree from dependency obj");
+    }
+
+    return testFilesAcc.testCandidates;
 }
 
 export function FindRelatedFiles(config: Configuration) : Set<string> {

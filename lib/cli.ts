@@ -3,9 +3,10 @@
 import yargs from 'yargs';
 import fs from 'fs';
 import log, {LogLevelDesc} from 'loglevel';
-import {Configuration, InputMode} from "./model";
 
-import {FindRelatedFiles, Executor} from "./index";
+import {FindRelatedFiles, Executor, FindRelatedFiles2} from "./index";
+import {Configuration, InputMode} from "./config";
+import {PostOrder} from "./explorer";
 
 export function getChangedFilesFromStream(config: any) {
     return new Promise<Set<string>>((resolve, reject) => {
@@ -46,7 +47,7 @@ export async function RunCmdLine(config: Configuration) {
             log.info("Entry point: ", config.entryPoint);
             log.info("Search Dir: ", config.searchDir);
             config.changedFileSet = changeSet;
-            const res: any = FindRelatedFiles(config);
+            const res: any = FindRelatedFiles2(config);
             log.info("Test Candidates..");
             log.info(res);
             log.info("\n\n");
@@ -102,3 +103,4 @@ function Run(config: Configuration) {
 console.log('Searching for related test files..');
 log.setDefaultLevel('info');
 Run(getConfig());
+// console.log(getConfig());
