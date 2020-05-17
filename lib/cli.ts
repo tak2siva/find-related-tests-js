@@ -4,9 +4,8 @@ import yargs from 'yargs';
 import fs from 'fs';
 import log, {LogLevelDesc} from 'loglevel';
 
-import {FindRelatedFiles, Executor, FindRelatedFiles2} from "./index";
+import {Executor, FindRelatedFiles2, FlushTestCandidates} from "./index";
 import {Configuration, InputMode} from "./config";
-import {PostOrder} from "./explorer";
 
 export function getChangedFilesFromStream(config: any) {
     return new Promise<Set<string>>((resolve, reject) => {
@@ -22,8 +21,9 @@ export function getChangedFilesFromStream(config: any) {
         stdin.on('end', function () {
             log.debug("\nGit diff --name-only: ", data);
             for (let temp of data.toString().split("\n")) {
-                if (config.gitIncludeFilter(temp)) {
-                    changeSet.add(config.gitRoot + '/' + temp);
+                temp = temp.trim();
+                if(temp) {
+                    changeSet.add(temp);
                 }
             }
             resolve(changeSet);
@@ -35,6 +35,8 @@ export function getChangedFilesFromStream(config: any) {
 
 export async function RunCmdLine(config: Configuration) {
     log.info("Project directory: ", process.cwd());
+    log.info("Entry point: ", config.entryPoint);
+    log.info("Search Dir: ", config.searchDir);
     if (process.stdin.isTTY) {
         log.info('No stdin');
     } else {
@@ -44,20 +46,14 @@ export async function RunCmdLine(config: Configuration) {
             log.info(changeSet);
             log.info("\n\n");
 
-            log.info("Entry point: ", config.entryPoint);
-            log.info("Search Dir: ", config.searchDir);
             config.changedFileSet = changeSet;
-            const res: any = FindRelatedFiles2(config);
+            const testCandidates: any = FindRelatedFiles2(config);
+
             log.info("Test Candidates..");
-            log.info(res);
+            log.info(testCandidates);
             log.info("\n\n");
             if(config.outputFile) {
-                log.info("Writing test candidates to ", config.outputFile);
-                fs.writeFile(config.outputFile, Array.from(res).join(' '), err => {
-                    if(err) {
-                        console.log('output write error: ', err)
-                    }
-                });
+                FlushTestCandidates(config, testCandidates);
             }
         });
     }
@@ -100,7 +96,6 @@ function Run(config: Configuration) {
     }
 }
 
-console.log('Searching for related test files..');
+console.log("\nFinding related test files..");
 log.setDefaultLevel('info');
 Run(getConfig());
-// console.log(getConfig());

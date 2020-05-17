@@ -61,13 +61,16 @@ export function FindRelatedFiles2(config: Configuration) : Set<string> {
             return true;
         }
     }
+    if(config.directDependencyModifiedCb) {
+        postOrderCallbacks.directDependencyModifiedCb = config.directDependencyModifiedCb;
+    }
     let testFilesAcc = new Accumulator();
     if(tree) {
         if(config.changedFileSet) {
             log.debug("Traversing tree..");
             PostOrder(tree as Tree, postOrderCallbacks, config.changedFileSet, testFilesAcc);
             log.debug("Treverse completed..");
-            FlushTestCandidates(config, testFilesAcc.testCandidates);
+            // FlushTestCandidates(config, testFilesAcc.testCandidates);
         } else {
             log.info("ChangeNo files modified..")
         }
@@ -78,35 +81,9 @@ export function FindRelatedFiles2(config: Configuration) : Set<string> {
     return testFilesAcc.testCandidates;
 }
 
-export function FindRelatedFiles(config: Configuration) : Set<string> {
-    let tree: DependencyObj = dependencyTree({
-        filename: config.entryPoint,
-        directory: config.searchDir,
-        filter: config.dependencyExcludeFilter
-    });
-    log.debug("Tree..", tree);
-    let explorer: Explorer = new Explorer(tree);
-    if (!config.changedFileSet) {
-        throw Error("Modified candidates are missing..");
-    }
-    let sourceCandidates = explorer.findConsumersOf(config.changedFileSet);
-    log.info("\nSource Candidates..");
-    log.info(sourceCandidates);
-    log.info("\n");
-
-    let acc: Accumulator = new Accumulator();
-    sourceCandidates.forEach((sourceFile) => {
-        if (config.sourceToTestMapper) {
-            config.sourceToTestMapper(sourceFile, acc);
-        }
-    });
-
-    return acc.testCandidates;
-}
-
 export function FlushTestCandidates(config: Configuration, testCandidates: Set<string>) {
     if(config.outputFile) {
-        log.info("Writing test candidates to ", config.outputFile);
+        log.info("Writing test candidates to ", config.outputFile + "\n\n");
         fs.writeFile(config.outputFile, Array.from(testCandidates).join(' '), err => {
             if(err) {
                 console.log('output write error: ', err)
@@ -116,6 +93,6 @@ export function FlushTestCandidates(config: Configuration, testCandidates: Set<s
 }
 
 export function Executor(config: Configuration) {
-    let testCandidates = FindRelatedFiles(config);
+    let testCandidates = FindRelatedFiles2(config);
     FlushTestCandidates(config, testCandidates);
 }

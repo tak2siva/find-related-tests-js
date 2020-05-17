@@ -8,13 +8,13 @@ export enum InputMode {
 export class Configuration {
     entryPoint: string;
     searchDir: string;
-    gitRoot: string; // need to figure out absolute path // required if input is stdin
     inputMode: InputMode; // 'stdin' || 'config',
-    gitIncludeFilter?(path: string): boolean;
 
     dependencyExcludeFilter?(path: string): boolean;
 
-    sourceToTestMapper?(sourceFile: string, acc: Accumulator): void;
+    sourceFileModifiedCb?(path: string, relatedFiles: Accumulator): boolean;
+    directDependencyModifiedCb?(path: string, relatedFiles: Accumulator): boolean;
+    transitiveDependencyModifiedCb?(path: string, relatedFiles: Accumulator): boolean;
 
     outputFile?: string;
     changedFileSet?: Set<string>;
@@ -33,7 +33,6 @@ export class Configuration {
         if (!config.gitRoot) {
             throw Error("Root path for this git repository is missing");
         }
-        this.gitRoot = config.gitRoot;
 
         if (config.inputMode) {
             this.inputMode = config.inputMode as InputMode;
@@ -48,9 +47,7 @@ export class Configuration {
                 throw Error('Input mode is config. Expecting list of files modified in the branch in configuration.');
             }
         }
-        this.gitIncludeFilter = config.gitIncludeFilter;
         this.dependencyExcludeFilter = config.dependencyExcludeFilter;
-        this.sourceToTestMapper = config.sourceToTestMapper;
         this.outputFile = config.outputFile;
     }
 }
