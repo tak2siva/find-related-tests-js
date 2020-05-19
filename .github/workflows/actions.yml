@@ -44,3 +44,12 @@ jobs:
       with:
         name: dist
         path: ./dist-${{ github.sha }}.zip
+
+    - name: Upload binaries to release
+      uses: svenstaro/upload-release-action@v1-release
+      with:
+        repo_token: ${{ secrets.GITHUB_TOKEN }}
+        file: ./dist-${{ github.sha }}.zip
+        asset_name: dist-${{ github.sha }}.zip
+        tag: ${{ github.sha }}
+        overwrite: true
