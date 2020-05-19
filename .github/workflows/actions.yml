@@ -43,4 +43,4 @@ jobs:
     - uses: actions/upload-artifact@v2
       with:
         name: dist
-        path: ./dist-${{ github.sha }}.zip.zip
+        path: ./dist-${{ github.sha }}.zip
